@@ -1,4 +1,4 @@
-import { prepareUISelectorsData } from "../prepareUISelectorsData";
+import { prepareUISelectorsData } from "../Form/helpers/prepareUISelectorsData";
 
 const input = [
   {

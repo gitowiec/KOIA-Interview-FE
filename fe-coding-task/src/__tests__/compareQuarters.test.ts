@@ -1,4 +1,4 @@
-import { compareQuarters } from "../compareQuarters";
+import { compareQuarters } from "../Form/helpers/compareQuarters";
 
 const quarters1 = ["2009K1", "2009K2", "2009K3"];
 const quarters2 = ["2009K4", "2010K1", "2010K2"];

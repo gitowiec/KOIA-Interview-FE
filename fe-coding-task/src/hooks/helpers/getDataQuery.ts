@@ -1,4 +1,4 @@
-import { getQuaterRange } from "./getQuaterRange";
+import { getQuaterRange } from "../../helpers/getQuaterRange";
 
 const tidFilterQuery = {
   filter: "all",

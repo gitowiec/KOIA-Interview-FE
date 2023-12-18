@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { getDataQuery } from "./getDataQuery";
+import { getDataQuery } from "./helpers/getDataQuery";
 import axios from "axios";
 
 export const useFetchData = (

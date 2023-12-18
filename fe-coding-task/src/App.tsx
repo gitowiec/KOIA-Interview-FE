@@ -2,13 +2,13 @@ import React, { useMemo, useState } from "react";
 import { Box, CircularProgress, Container, Grid } from "@mui/material";
 import "./App.css";
 import { Logo } from "./Logo";
-import { useFetchMetaData } from "./useFetchMetaData";
-import { Form } from "./Form";
+import { useFetchMetaData } from "./hooks/useFetchMetaData";
+import { Form } from "./Form/Form";
 import { Link, LoaderFunction } from "react-router-dom";
 import { Chart } from "./Chart";
-import { useFetchData } from "./useFetchData";
-import { useFormNavigation } from "./useFormNavigation";
-import { getQuaterRange } from "./getQuaterRange";
+import { useFetchData } from "./hooks/useFetchData";
+import { useFormNavigation } from "./hooks/useFormNavigation";
+import { getQuaterRange } from "./helpers/getQuaterRange";
 
 const JSONstat = require("jsonstat-toolkit").default;
 

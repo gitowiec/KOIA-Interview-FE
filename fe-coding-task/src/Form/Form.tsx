@@ -4,9 +4,9 @@ import { FormSelectors } from "./FormSelectors";
 import {
   prepareUISelectorsData,
   SSBTableMetadata,
-} from "./prepareUISelectorsData";
+} from "./helpers/prepareUISelectorsData";
 import { set, SubmitHandler, useForm } from "react-hook-form";
-import { getQuaterRange } from "./getQuaterRange";
+import { getQuaterRange } from "../helpers/getQuaterRange";
 import localForage, { key } from "localforage";
 
 type Props = {
@@ -62,7 +62,6 @@ export const Form: React.FC<Props> = ({
 
   useEffect(() => {
     const subscription = watch(async (value, { name, type }) => {
-      console.log(value, name, type);
       const key = `remark-${value.boligtype}-${value.tid1}-${value.tid2}`;
       if (!name && !type) {
         const item = (await localForage.getItem(key)) as string;

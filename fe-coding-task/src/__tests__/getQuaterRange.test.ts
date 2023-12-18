@@ -1,4 +1,4 @@
-import { getQuaterRange } from "../getQuaterRange";
+import { getQuaterRange } from "../helpers/getQuaterRange";
 
 const quarters = ["2009K1", "2009K2", "2009K3", "2009K4"];
 const quarters2 = [
