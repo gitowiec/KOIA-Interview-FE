@@ -2,22 +2,39 @@ import { useEffect, useState } from "react";
 import { getDataQuery } from "./getDataQuery";
 import axios from "axios";
 
-export const useFetchData = () => {
+export const useFetchData = (
+  q: Partial<Record<"boligtype" | "tid1" | "tid2", string>> = {},
+) => {
   const [data, setData] = useState({});
-  const [query, setQuery] = useState(getDataQuery());
-
+  const [query, setQuery] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
-      // const result = await axios.get('https://data.ssb.no/api/v0/en/console/meta/table/06695/');
-      const result = await axios.post("/api/v0/en/table/07241", query);
-      setData(result.data);
+      setIsError(false);
+      setIsLoading(true);
+      try {
+        const result = await axios.post(
+          "/api/v0/en/table/07241",
+          getDataQuery(query),
+        );
+        setData(result.data);
+      } catch (error) {
+        setIsError(true);
+      }
+      setIsLoading(false);
     };
 
-    fetchData();
+    if (Object.keys(query).length > 0) {
+      fetchData();
+    }
   }, [query]);
 
   return {
     data,
     setQuery,
+    isLoading,
+    isLoaded: !isLoading && Object.keys(data).length > 0,
+    isError,
   };
 };

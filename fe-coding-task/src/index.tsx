@@ -16,7 +16,7 @@ const root = ReactDOM.createRoot(
 
 const router = createBrowserRouter([
   {
-    path: "/:boligtype?/:tid1?/:tid2?",
+    path: "/",
     loader: loader,
     element: <App />,
   },

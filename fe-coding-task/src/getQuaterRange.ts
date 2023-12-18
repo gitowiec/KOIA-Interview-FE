@@ -1,5 +1,3 @@
-import { start } from "node:repl";
-
 /**
  * @throws
  * @param yearQuarter1

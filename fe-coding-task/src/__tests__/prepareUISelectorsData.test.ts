@@ -416,7 +416,7 @@ const output = {
   },
 };
 test("prepareUISelectorsData", () => {
-  const result = prepareUISelectorsData(input);
+  const result = prepareUISelectorsData(input as any);
 
   expect(result).toEqual(output);
 });

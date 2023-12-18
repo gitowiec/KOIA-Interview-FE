@@ -5,14 +5,19 @@ import {
   prepareUISelectorsData,
   SSBTableMetadata,
 } from "./prepareUISelectorsData";
-import { SubmitHandler, useForm } from "react-hook-form";
-import { useLoaderData, useParams } from "react-router-dom";
+import { set, SubmitHandler, useForm } from "react-hook-form";
+import { getQuaterRange } from "./getQuaterRange";
+import localForage, { key } from "localforage";
 
 type Props = {
   metaData: SSBTableMetadata;
+  changeUrl: (compound: Record<"boligtype" | "tid1" | "tid2", string>) => void;
+  setQuery: Dispatch<SetStateAction<any>>;
+  currentParams: Record<"boligtype" | "tid1" | "tid2", string>;
   setSelectionState: Dispatch<
     SetStateAction<Record<"boligtype" | "tid1" | "tid2", string>>
   >;
+  setQuarterRange: Dispatch<SetStateAction<string[]>>;
 };
 
 export type Inputs = {
@@ -22,11 +27,16 @@ export type Inputs = {
   remark: string;
 };
 
-export const Form: React.FC<Props> = ({ metaData, setSelectionState }) => {
+export const Form: React.FC<Props> = ({
+  setQuery,
+  metaData,
+  changeUrl,
+  currentParams,
+  setSelectionState,
+  setQuarterRange,
+}) => {
   const selectorsData = prepareUISelectorsData(metaData);
-  const { boligtype: boligtypeUrl, tid1: tid1url, tid2: tid2url } = useParams();
 
-  // console.log({ boligtype: boligtypeUrl, tid1: tid1url, tid2: tid2url });
   const {
     register,
     handleSubmit,
@@ -34,21 +44,36 @@ export const Form: React.FC<Props> = ({ metaData, setSelectionState }) => {
     getValues,
     reset,
     control,
+    setError,
+    setValue,
     formState: { errors, isSubmitting },
-  } = useForm<Inputs>();
-  // console.log(watch("remark"));
-  // useEffect(() => {
-  // console.log("useEffect");
-  // if (boligtypeUrl || tid1url || tid2url) {
-  // console.log("useEffect2");
-  // reset({
-  //   boligtype: boligtypeUrl,
-  //   tid1: tid1url,
-  //   tid2: tid2url,
-  // });
-  // }
-  // }, [boligtypeUrl, tid1url, tid2url]);
-  const onSubmit: SubmitHandler<Inputs> = (data) => console.log(data);
+  } = useForm<Inputs>({
+    defaultValues: currentParams,
+    mode: "all",
+  });
+  useEffect(() => {
+    reset(currentParams);
+  }, [currentParams]);
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setQuery(currentParams);
+    setSelectionState(data);
+    setQuarterRange(getQuaterRange(data.tid1, data.tid2));
+  };
+
+  useEffect(() => {
+    const subscription = watch(async (value, { name, type }) => {
+      console.log(value, name, type);
+      const key = `remark-${value.boligtype}-${value.tid1}-${value.tid2}`;
+      if (!name && !type) {
+        const item = (await localForage.getItem(key)) as string;
+        setValue("remark", item);
+      } else {
+        await localForage.setItem(key, value.remark);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [watch]);
+
   return (
     <Grid
       container
@@ -60,29 +85,19 @@ export const Form: React.FC<Props> = ({ metaData, setSelectionState }) => {
     >
       <Grid item container sx={{ p: 2 }} spacing={2}>
         <FormSelectors
+          setError={setError}
           control={control}
           getValues={getValues}
-          register={register}
           selectorsData={selectorsData}
           errors={errors}
-          setSelectionState={setSelectionState}
+          changeUrl={changeUrl}
         />
       </Grid>
       <Grid item py={2} display={"flex"} flexDirection={"row"}>
         <TextField {...register("remark")} label="Remark" multiline rows={4} />
       </Grid>
       <Grid item py={2} display={"flex"} flexDirection={"row"}>
-        <Button
-          type={"submit"}
-          variant={"contained"}
-          onClick={() => {
-            reset({
-              boligtype: "03",
-              tid1: "2011K1",
-              tid2: "2011K2",
-            });
-          }}
-        >
+        <Button type={"submit"} variant={"contained"}>
           SEND
         </Button>
       </Grid>

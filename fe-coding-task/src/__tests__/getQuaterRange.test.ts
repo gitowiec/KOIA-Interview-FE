@@ -57,27 +57,27 @@ const quarters3 = [
   "2022K3",
   "2022K4",
 ];
-test("getQuarterRange 1", () => {
+test("getQuarterRange get four quarters on one year", () => {
   const result = getQuaterRange("2009K1", "2009K4");
   expect(result.toString() === quarters.toString());
 });
-test("getQuarterRange 2", () => {
+test("getQuarterRange get longer range of quarters", () => {
   const result = getQuaterRange("2010K1", "2015K3");
   expect(result.toString() === quarters2.toString());
 });
-test("getQuarterRange 3", () => {
+test("getQuarterRange get range of quarters from 4th to 4th quarter", () => {
   const result = getQuaterRange("2015K4", "2022K4");
   expect(result.toString() === quarters3.toString());
 });
-test("getQuarterRange 4", () => {
+test("getQuarterRange throws because order of years inverted", () => {
   const doesItThrow = () => getQuaterRange("2015K4", "2014K4");
   expect(doesItThrow).toThrow();
 });
-test("getQuarterRange 5", () => {
+test("getQuarterRange throws because order of quarters inverted", () => {
   const doesItThrow = () => getQuaterRange("2014K4", "2014K1");
   expect(doesItThrow).toThrow();
 });
-test("getQuarterRange 6", () => {
+test("getQuarterRange throws because range length is zero", () => {
   const doesItThrow = () => getQuaterRange("2014K1", "2014K1");
   expect(doesItThrow).toThrow();
 });

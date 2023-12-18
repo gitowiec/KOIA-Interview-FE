@@ -1,4 +1,4 @@
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, memo, SetStateAction } from "react";
 import {
   FormControl,
   FormHelperText,
@@ -11,12 +11,11 @@ import { compareQuarters } from "./compareQuarters";
 import {
   Control,
   UseFormGetValues,
-  UseFormRegister,
+  UseFormSetError,
 } from "react-hook-form/dist/types/form";
 import { Inputs } from "./Form";
 import { FieldErrors } from "react-hook-form/dist/types/errors";
 import { Controller } from "react-hook-form";
-import { useFormNavigation } from "./useFormNavigation";
 
 type Props = {
   selectorsData: Record<
@@ -26,29 +25,30 @@ type Props = {
       mappedValues: Record<"key" | "value", string>[];
     }
   >;
-  register: UseFormRegister<Inputs>;
   getValues: UseFormGetValues<Inputs>;
   errors: FieldErrors<Inputs>;
-  setSelectionState: Dispatch<
-    SetStateAction<Record<"boligtype" | "tid1" | "tid2", string>>
-  >;
+  changeUrl: (compound: Record<"boligtype" | "tid1" | "tid2", string>) => void;
   control: Control<Inputs, any>;
+  setError: UseFormSetError<Inputs>;
 };
 
 export const FormSelectors: React.FC<Props> = ({
   selectorsData: { Boligtype, Tid },
-  register,
   getValues,
   errors,
   control,
-  setSelectionState,
+  changeUrl,
+  setError,
 }) => {
   const validateTid1 = (value: string) => {
     const tid2val = getValues().tid2;
     if (tid2val === "") return true;
     return (
       compareQuarters(value, tid2val) > 0 ??
-      `Choose smaller value than ${tid2val} or..`
+      setError("tid1", {
+        type: "manual",
+        message: `Choose smaller value than ${tid2val} or..`,
+      })
     );
   };
 
@@ -57,11 +57,12 @@ export const FormSelectors: React.FC<Props> = ({
     if (tid1val === "") return true;
     return (
       compareQuarters(tid1val, value) > 0 ??
-      `..choose bigger value than ${tid1val}`
+      setError("tid2", {
+        type: "manual",
+        message: `..choose bigger value than ${tid1val}`,
+      })
     );
   };
-
-  const { changeUrl } = useFormNavigation(setSelectionState);
 
   const onChange = (e: any) => {
     changeUrl({ [e.target.name]: e.target.value } as Record<
@@ -81,7 +82,7 @@ export const FormSelectors: React.FC<Props> = ({
           <Controller
             name="boligtype"
             control={control}
-            render={({ field }) => (
+            render={({ field, formState }) => (
               <Select
                 {...field}
                 labelId={`Boligtype-select-label`}
@@ -89,6 +90,9 @@ export const FormSelectors: React.FC<Props> = ({
                 defaultValue={Boligtype.mappedValues[0].key}
                 onChange={onChange}
               >
+                <MenuItem key={""} value={""}>
+                  &nbsp;
+                </MenuItem>
                 {Boligtype?.mappedValues?.map((value) => {
                   return (
                     <MenuItem key={value.key} value={value.key}>
@@ -107,16 +111,21 @@ export const FormSelectors: React.FC<Props> = ({
           <Controller
             name="tid1"
             control={control}
-            render={({ field }) => (
+            rules={{
+              validate: {
+                val: validateTid1,
+              },
+            }}
+            render={({ field, formState }) => (
               <Select
+                {...field}
                 labelId={`Tid1-select-label`}
                 label={`From ${Tid.text}`}
-                defaultValue={Tid?.mappedValues[0].key}
-                {...register("tid1", {
-                  validate: validateTid1,
-                  onChange,
-                })}
+                onChange={onChange}
               >
+                <MenuItem key={""} value={""}>
+                  &nbsp;
+                </MenuItem>
                 {Tid?.mappedValues?.map((value) => {
                   return (
                     <MenuItem key={value.key} value={value.key}>
@@ -133,23 +142,32 @@ export const FormSelectors: React.FC<Props> = ({
       <Grid item xs={6} sm={4}>
         <FormControl size="small" sx={{ width: 1 }} error={!!errors?.tid2}>
           <InputLabel id={`Tid2-select-label`}>To {Tid.text}</InputLabel>
-          <Select
-            labelId={`Tid2-select-label`}
-            label={`To ${Tid.text}`}
-            defaultValue={Tid?.mappedValues[Tid?.mappedValues.length - 1].key}
-            {...register("tid2", {
-              validate: validateTid2,
-              onChange,
-            })}
-          >
-            {Tid?.mappedValues?.map((value) => {
-              return (
-                <MenuItem key={value.key} value={value.key}>
-                  {value.value}
+          <Controller
+            name="tid2"
+            control={control}
+            rules={{
+              validate: { val: validateTid2 },
+            }}
+            render={({ field }) => (
+              <Select
+                {...field}
+                labelId={`Tid2-select-label`}
+                label={`To ${Tid.text}`}
+                onChange={onChange}
+              >
+                <MenuItem key={""} value={""}>
+                  &nbsp;
                 </MenuItem>
-              );
-            })}
-          </Select>
+                {Tid?.mappedValues?.map((value) => {
+                  return (
+                    <MenuItem key={value.key} value={value.key}>
+                      {value.value}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            )}
+          />
           <FormHelperText>{errors?.tid2?.message}</FormHelperText>
         </FormControl>
       </Grid>
